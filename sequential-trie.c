@@ -400,6 +400,7 @@ int drop_one_node  () {
   }
   if (node->children==NULL) {
     free(node);
+    node_count--;
   }
   else{
     struct trie_node *parent = node;
@@ -410,11 +411,13 @@ int drop_one_node  () {
         struct trie_node *sibl = node->next;
         if (sibl == NULL) {
           free(node);
+          node_count--;
           break;
         }
         else{
           parent->children = sibl;
           free(node);
+          node_count--;
           break;
         }
       }
