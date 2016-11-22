@@ -394,7 +394,35 @@ int delete  (const char *string, size_t strlen) {
  * Use any policy you like to select the node.
  */
 int drop_one_node  () {
-  // Your code here
+  struct trie_node *node = root;
+  if (node==NULL) {
+    return 0;
+  }
+  if (node->children==NULL) {
+    free(node);
+  }
+  else{
+    struct trie_node *parent = node;
+    node = parent->children
+    while (1) {
+      struct trie_node *desc = node->children;
+      if (desc == NULL) {
+        struct trie_node *sibl = node->next;
+        if (sibl == NULL) {
+          free(node);
+          break;
+        }
+        else{
+          parent->children = sibl;
+          free(node);
+          break;
+        }
+      }
+      else{
+        parent = node;
+      }
+    }
+  }
   return 0;
 }
 
@@ -402,9 +430,7 @@ int drop_one_node  () {
  */
 void check_max_nodes  () {
   while (node_count > max_count) {
-    printf("Warning: not dropping nodes yet.  Drop one node not implemented\n");
-    break;
-    //drop_one_node();
+    drop_one_node();
   }
 }
 
