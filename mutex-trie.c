@@ -24,7 +24,7 @@ static int node_count = 0;
 static int max_count = 100;  //Try to stay at no more than 100 nodes
 static pthread_mutex_t coarse = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t waitUp = PTHREAD_COND_INITIALIZER;
-extern int seperate_delete_thread;
+extern int separate_delete_thread;
 
 struct trie_node * new_leaf (const char *string, size_t strlen, int32_t ip4_address) {
     struct trie_node *new_node = malloc(sizeof(struct trie_node));
@@ -492,7 +492,7 @@ int drop_one_node  () {
 /* Check the total node count; see if we have exceeded a the max.
  */
 void check_max_nodes  () {
-    if (seperate_delete_thread) {
+    if (separate_delete_thread) {
       while (node_count>max_count) {
         pthread_cond_wait(&waitUp, &coarse);
         pthread_mutex_lock(&coarse);
