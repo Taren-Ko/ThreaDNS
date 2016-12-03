@@ -436,7 +436,7 @@ int drop_one_node  () {
   }
   else{
     struct trie_node *parent = node;
-    node = parent->children
+    node = parent->children;
     while (1) {
       struct trie_node *desc = node->children;
       if (desc == NULL) {
