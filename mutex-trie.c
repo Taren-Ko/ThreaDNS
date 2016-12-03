@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "trie.h"
 
 
@@ -496,7 +497,7 @@ void check_max_nodes  () {
         pthread_cond_wait(&waitUp, &coarse);
         pthread_mutex_lock(&coarse);
         while (node_count>max_count) {
-          drop_one_node;
+          drop_one_node();
         }
       }
       pthread_mutex_unlock(&coarse);
