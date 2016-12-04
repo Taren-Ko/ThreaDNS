@@ -187,6 +187,7 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 
     // First things first, check if we are NULL
     assert (node != NULL);
+    printf("%u\n", node->strlen);
     assert (node->strlen <= MAX_KEY);
 
     // Take the minimum of the two lengths
@@ -311,6 +312,7 @@ void assert_invariants();
 int insert (const char *string, size_t strlen, int32_t ip4_address) {
     pthread_mutex_lock(&coarse);
 
+
     assert(strlen <= MAX_KEY);
 
     // Skip strings of length 0
@@ -349,6 +351,7 @@ _delete (struct trie_node *node, const char *string,
 
     // First things first, check if we are NULL
     if (node == NULL) return NULL;
+
 
     assert(node->strlen < MAX_KEY);
 
@@ -454,39 +457,40 @@ int delete  (const char *string, size_t strlen) {
  * Use any policy you like to select the node.
  */
 int drop_one_node  () {
+  int i, len = 0;
   struct trie_node *node = root;
-  if (node==NULL) {
-    return 0;
-  }
-  if (node->children==NULL) {
-    free(node);
-    node_count--;
-  }
-  else{
-    struct trie_node *parent = node;
-    node = parent->children;
-    while (1) {
-      struct trie_node *desc = node->children;
-      if (desc == NULL) {
-        struct trie_node *sibl = node->next;
-        if (sibl == NULL) {
-          free(node);
-          node_count--;
-          break;
+  char strng[6400];
+
+  do
+  {
+      char temp[6400];
+      strncpy(temp, node->key, node->strlen);
+
+      for(i = 0; i < node->strlen; i++)
+          strng[len+i] = temp[node->strlen-i-1];
+
+      temp[node->strlen] = '\0';
+      len += node->strlen;
+
+      if(node->children != NULL){
+          node = node->children;
         }
-        else{
-          parent->children = sibl;
-          free(node);
-          node_count--;
-          break;
-        }
-      }
       else{
-        parent = node;
-      }
-    }
+          break;
+        }
+
+  } while(1);
+
+  for(i = 0; i<len/2; i++){
+      char temp;
+      temp = strng[i];
+      strng[i] = strng[len-i-1];
+      strng[len-i-1] = temp;
   }
-    return 0;
+
+  _delete(root, strng, len);
+  strng[len] = '\0';
+  return 0;
 }
 
 /* Check the total node count; see if we have exceeded a the max.
@@ -495,7 +499,7 @@ void check_max_nodes  () {
     if (separate_delete_thread) {
       while (node_count>max_count) {
         pthread_cond_wait(&waitUp, &coarse);
-        pthread_mutex_lock(&coarse);
+        // pthread_mutex_lock(&coarse);
         while (node_count>max_count) {
           drop_one_node();
         }
@@ -503,9 +507,11 @@ void check_max_nodes  () {
       pthread_mutex_unlock(&coarse);
     }
     else{
+    pthread_mutex_lock(&coarse);
       while (node_count > max_count) {
           drop_one_node();
       }
+    pthread_mutex_unlock(&coarse);
     }
 }
 

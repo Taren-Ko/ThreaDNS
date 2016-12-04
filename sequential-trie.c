@@ -426,38 +426,39 @@ int delete  (const char *string, size_t strlen) {
  * Use any policy you like to select the node.
  */
 int drop_one_node  () {
-  struct trie_node *node = root;
-  if (node==NULL) {
-    return 0;
-  }
-  if (node->children==NULL) {
-    free(node);
-    node_count--;
-  }
-  else{
-    struct trie_node *parent = node;
-    node = parent->children;
-    while (1) {
-      struct trie_node *desc = node->children;
-      if (desc == NULL) {
-        struct trie_node *sibl = node->next;
-        if (sibl == NULL) {
-          free(node);
-          node_count--;
-          break;
-        }
+    int i, len = 0;
+    struct trie_node *node = root;
+    char strng[6400] = "";
+
+    do
+    {
+        char temp[6400];
+        strncpy(temp, node->key, node->strlen);
+
+        for(i = 0; i < node->strlen; i++)
+            strng[len+i] = temp[node->strlen-i-1];
+
+        temp[node->strlen] = '\0';
+        len += node->strlen;
+
+        if(node->children != NULL){
+            node = node->children;
+          }
         else{
-          parent->children = sibl;
-          free(node);
-          node_count--;
-          break;
-        }
-      }
-      else{
-        parent = node;
-      }
+            break;
+          }
+
+    } while(1);
+
+    for(i = 0; i<len/2; i++){
+        char temp;
+        temp = strng[i];
+        strng[i] = strng[len-i-1];
+        strng[len-i-1] = temp;
     }
-  }
+
+    _delete(root, strng, len);
+    strng[len] = '\0';
     return 0;
 }
 

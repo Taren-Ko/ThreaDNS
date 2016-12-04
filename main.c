@@ -2,11 +2,11 @@
 /* vim: set ts=4 sw=4 et tw=78 fo=cqt wm=0: */
 
 /* Multi-threaded DNS-like Simulation.
- * 
+ *
  * Don Porter - porter@cs.unc.edu
- * 
+ *
  * COMP 530 - University of North Carolina, Chapel Hill
- * 
+ *
  */
 
 #include <pthread.h>
@@ -22,10 +22,11 @@ int separate_delete_thread = 0;
 int simulation_length = 30; // default to 30 seconds
 volatile int finished = 0;
 
+#define DEBUG 1
 #ifdef DEBUG
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
-#define DEBUG_PRINT(...) 
+#define DEBUG_PRINT(...)
 #endif
 
 
@@ -45,16 +46,16 @@ client(void *arg)
     struct random_data rd;
     char rand_state[256];
     int32_t salt = time(0);
-    
+
     if (use_global_salt)
         salt = global_salt;
 
     DEBUG_PRINT("Salt is %d\n", salt);
-    
+
     // See http://lists.debian.org/debian-glibc/2006/01/msg00037.html
     rd.state = (int32_t*)rand_state;
 
-    // Initialize the prng.  For testing, it may be helpful to reduce noise by 
+    // Initialize the prng.  For testing, it may be helpful to reduce noise by
     // temporarily setting this to a fixed value.
     initstate_r(salt, rand_state, sizeof(rand_state), &rd);
 
@@ -66,7 +67,7 @@ client(void *arg)
         char buf[MAX_KEY];
         int j;
         int32_t ip4_addr;
-    
+
         if (rv) {
             printf("Failed to get random number - %d\n", rv);
             return NULL;
@@ -74,7 +75,7 @@ client(void *arg)
 
         if (length == 0)
             continue;
-            
+
         DEBUG_PRINT("Length is %d\n", length);
         memset(buf, 0, MAX_KEY);
         /* Generate a random string in lowercase */
@@ -97,7 +98,7 @@ client(void *arg)
         }
 
         DEBUG_PRINT ("Random string is %s\n", buf);
-    
+
 
         switch (code % 3) {
         case 0: // Search
@@ -141,18 +142,18 @@ client(void *arg)
 #define INSERT_TEST(ky, len, ip) do {                   \
         rv = insert(ky, len, ip);                       \
         if (!rv) die ("Failed to insert key " ky "\n"); \
-    } while (0)					    
+    } while (0)
 
 #define SEARCH_TEST(ky, len, ex) do {                           \
         rv = search(ky, len, &ip);                              \
         if (!rv) die ("Failed fine insert key " ky "\n");		\
         if (ip != ex) die ("Found bad IP for key " ky "\n");	\
-    } while (0)					    
+    } while (0)
 
 #define DELETE_TEST(ky, len) do {                       \
         rv = delete(ky, len);                           \
         if (!rv) die ("Failed to delete key " ky "\n"); \
-    } while (0)					    
+    } while (0)
 
 int self_tests() {
     int rv;
@@ -176,7 +177,7 @@ int self_tests() {
 
     rv = delete("google", 6);
     if (!rv) die ("Failed to delete key google\n");
-  
+
     rv = insert ("ab", 2, 2);
     if (!rv) die ("Failed to insert key ab\n");
 
@@ -190,7 +191,7 @@ int self_tests() {
     printf("Rv is %d\n", rv);
     if (!rv) die ("Failed to find key ab\n");
     if (ip != 2) die ("Found bad IP for key ab\n");
-  
+
     rv = search("aa", 2, NULL);
     if (rv) die ("Found bogus key aa\n");
 
@@ -226,7 +227,7 @@ int self_tests() {
 
     rv = insert("xaaa", 4, 7);
     if (!rv) die ("Failed to insert key xaaa\n");
-  
+
     rv = search("cccc", 4, &ip);
     if (!rv) die ("Failed to find key cccc\n");
     if (ip != 6) die ("Found bad IP for key cccc\n");
@@ -268,7 +269,7 @@ int self_tests() {
     SEARCH_TEST("principle", 9, 12);
 
     print();
-  
+
     DELETE_TEST("google", 6);
     DELETE_TEST("com", 3);
     DELETE_TEST("edu", 3);
@@ -283,25 +284,25 @@ int self_tests() {
     DELETE_TEST("principle", 9);
 
     // Tests suggested by Kammy
-    INSERT_TEST("zhriz", 5, 1); 
-    INSERT_TEST("eeonbws", 7, 2); 
-    INSERT_TEST("mfpmirs", 7, 3); 
+    INSERT_TEST("zhriz", 5, 1);
+    INSERT_TEST("eeonbws", 7, 2);
+    INSERT_TEST("mfpmirs", 7, 3);
     INSERT_TEST("pzkvlyi", 7, 14);
     INSERT_TEST("xzrtjbz", 7, 6);
 
     print();
 
-    SEARCH_TEST("xzrtjbz", 7, 6); 
+    SEARCH_TEST("xzrtjbz", 7, 6);
     SEARCH_TEST("pzkvlyi", 7, 14);
     SEARCH_TEST("mfpmirs", 7, 3);
     SEARCH_TEST("eeonbws", 7, 2);
-    SEARCH_TEST("zhriz", 5, 1); 
+    SEARCH_TEST("zhriz", 5, 1);
 
-  
+
     DELETE_TEST("mfpmirs", 7);
-    DELETE_TEST("xzrtjbz", 7); 
+    DELETE_TEST("xzrtjbz", 7);
     DELETE_TEST("eeonbws", 7);
-    DELETE_TEST("zhriz", 5); 
+    DELETE_TEST("zhriz", 5);
     DELETE_TEST("pzkvlyi", 7);
 
     // Kent tests
@@ -321,7 +322,7 @@ int self_tests() {
     print();
     INSERT_TEST("zzzz", 4, 6);
     print();
-    DELETE_TEST("zxkczzudhzmzqhsu", strlen("zxkczzudhzmzqhsu"));    
+    DELETE_TEST("zxkczzudhzmzqhsu", strlen("zxkczzudhzmzqhsu"));
     print();
     INSERT_TEST("azbz", 4, 7);
 
@@ -345,7 +346,7 @@ int main(int argc, char ** argv) {
     int numthreads = 1; // default to 1
     int c, i, rv;
     pthread_t *tinfo;
-        
+
     // Read options from command line:
     //   # clients from command line, as well as seed file
     //   Simulation length
@@ -392,7 +393,7 @@ int main(int argc, char ** argv) {
         }
     }
 
-    // Run the self-tests if we are in debug mode 
+    // Run the self-tests if we are in debug mode
 #ifdef DEBUG
     self_tests();
 #endif
@@ -424,10 +425,10 @@ int main(int argc, char ** argv) {
             printf ("Uh oh.  pthread_join failed %d\n", rv);
     }
 
-#ifdef DEBUG  
+#ifdef DEBUG
     /* Print the final tree for fun */
     print();
 #endif
-  
+
     return 0;
 }
