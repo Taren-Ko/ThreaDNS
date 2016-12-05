@@ -187,7 +187,6 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 
     // First things first, check if we are NULL
     assert (node != NULL);
-    printf("%u\n", node->strlen);
     assert (node->strlen <= MAX_KEY);
 
     // Take the minimum of the two lengths
