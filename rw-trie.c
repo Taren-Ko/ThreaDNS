@@ -510,9 +510,10 @@ void check_max_nodes  () {
         while (node_count>max_count) {
           drop_one_node();
         }
-        pthread_mutex_unlock(&coarse);
-        pthread_rwlock_destroy(&readWrite);
+
       }
+      pthread_mutex_unlock(&coarse);
+      pthread_rwlock_destroy(&readWrite);
     }
     else{
     pthread_rwlock_init(&readWrite, NULL);
